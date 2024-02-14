@@ -55,10 +55,10 @@ while True:
             cv2.rectangle(frame, position, (x + w, y + h), (0, 255, 0), 2)
 
         # Display the resulting frame
-        cv2.imshow('Frame', frame)
+        cv2.imshow("Frame", frame)
 
-        # Break the loop if 'q' is pressed
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        # Break the loop if "q" is pressed
+        if cv2.waitKey(1) & 0xFF == ord("q"):
             break
     else:
         print("Error: Unable to capture frame")
