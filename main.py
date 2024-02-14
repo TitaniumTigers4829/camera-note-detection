@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from networktables import NetworkTablesInstance
 
 
 # Specify the camera index (usually 0 for built-in webcam)
@@ -18,6 +19,7 @@ minimum_area_pixels = 30
 
 # The number of pixels the bounding box should be away from the edge of the frame
 detection_padding = 5
+
 
 def find_largest_orange_clump(image):
     # Convert frame from BGR to HSV color space

@@ -1,8 +1,11 @@
+# This file is just used for tuning for different lighting conditions
 import cv2
 import numpy as np
 
+
 def nothing(x):
     pass
+
 
 # Create a window to adjust the lower and upper bounds
 cv2.namedWindow("Trackbars")
