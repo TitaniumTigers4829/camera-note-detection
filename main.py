@@ -2,17 +2,27 @@ import cv2
 import numpy as np
 
 
-def find_largest_orange_clump(frame):
-    # Convert frame from BGR to HSV color space
-    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+# Specify the camera index (usually 0 for built-in webcam)
+camera_index = 0
 
-    # TODO We need to tune these values as right now, they aren't great and pick up red
-    # Define lower and upper bounds for orange color in HSV
-    lower_orange = np.array([5, 100, 100])
-    upper_orange = np.array([15, 255, 255])
+# Open the camera
+cap = cv2.VideoCapture(camera_index)
+
+# TODO We need to tune these values as right now for the specific camera
+# Define lower and upper bounds for orange color in HSV
+lower_orange = np.array([0, 160, 170])
+upper_orange = np.array([15, 255, 255])
+
+# Define the minimum contour area to detect a note
+minimum_area_pixels = 30
+
+
+def find_largest_orange_clump(image):
+    # Convert frame from BGR to HSV color space
+    hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
     # Threshold the HSV image to get only orange colors
-    mask = cv2.inRange(hsv, lower_orange, upper_orange)
+    mask = cv2.inRange(hsv_image, lower_orange, upper_orange)
 
     # Find contours in the mask
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -20,18 +30,13 @@ def find_largest_orange_clump(frame):
     # Find the largest contour (clump) of orange pixels
     if contours:
         largest_contour = max(contours, key=cv2.contourArea)
-        # Get the bounding box of the largest contour
-        x, y, w, h = cv2.boundingRect(largest_contour)
-        # Return the position (x, y) and size (w, h) of the largest clump
-        return (x, y), (w, h)
-    else:
-        return None, None
+        if cv2.contourArea(largest_contour) >= minimum_area_pixels:
+            # Get the bounding box of the largest contour
+            x_coord, y_coord, width, height = cv2.boundingRect(largest_contour)
+            # Return the position (x, y) and size (w, h) of the largest clump
+            return (x_coord, y_coord), (width, height)
+    return None, None
 
-# Specify the camera index (usually 0 for built-in webcam)
-camera_index = 0
-
-# Open the camera
-cap = cv2.VideoCapture(camera_index)
 
 while True:
     # Capture frame-by-frame
