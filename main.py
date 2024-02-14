@@ -6,9 +6,10 @@ def find_largest_orange_clump(frame):
     # Convert frame from BGR to HSV color space
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
+    # TODO We need to tune these values as right now, they aren't great and pick up red
     # Define lower and upper bounds for orange color in HSV
-    lower_orange = np.array([0, 100, 100])
-    upper_orange = np.array([20, 255, 255])
+    lower_orange = np.array([5, 100, 100])
+    upper_orange = np.array([15, 255, 255])
 
     # Threshold the HSV image to get only orange colors
     mask = cv2.inRange(hsv, lower_orange, upper_orange)
