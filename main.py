@@ -4,14 +4,14 @@ from networktables import NetworkTables
 
 
 # Specify the camera index (usually 0 for built-in webcam)
-camera_index = 0
+camera_index = 1
 
 # Open the camera
 cap = cv2.VideoCapture(camera_index)
 
-# TODO We need to tune these values as right now for the specific camera
+# TODO We need to tune these values as right now for the specific camera, these are tuned for the laptop camera
 # Define lower and upper bounds for orange color in HSV
-lower_orange = np.array([1, 80, 130])
+lower_orange = np.array([4, 180, 80])
 upper_orange = np.array([6, 255, 255])
 
 # Define the minimum contour area to detect a note
@@ -66,6 +66,7 @@ while True:
                 # Draw rectangle around the largest clump
                 cv2.rectangle(frame, position, (x + w, y + h), (0, 255, 0), 2)
             # TODO: Add in code to send values about the notes it sees here
+
             smart_dashboard.putBoolean("Can See Note", True)
         else:
             smart_dashboard.putBoolean("Can See Note", False)
