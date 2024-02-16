@@ -17,10 +17,10 @@ cv2.createTrackbar("Saturation Upper", "Trackbars", 0, 255, nothing)
 cv2.createTrackbar("Value Upper", "Trackbars", 0, 255, nothing)
 
 # Initialize with your initial estimate or default values
-cv2.setTrackbarPos("Hue Lower", "Trackbars", 0)
-cv2.setTrackbarPos("Saturation Lower", "Trackbars", 160)
-cv2.setTrackbarPos("Value Lower", "Trackbars", 170)
-cv2.setTrackbarPos("Hue Upper", "Trackbars", 15)
+cv2.setTrackbarPos("Hue Lower", "Trackbars", 1)
+cv2.setTrackbarPos("Saturation Lower", "Trackbars", 80)
+cv2.setTrackbarPos("Value Lower", "Trackbars", 130)
+cv2.setTrackbarPos("Hue Upper", "Trackbars", 6)
 cv2.setTrackbarPos("Saturation Upper", "Trackbars", 255)
 cv2.setTrackbarPos("Value Upper", "Trackbars", 255)
 
@@ -58,9 +58,12 @@ while True:
 
         # Find the largest contour (clump) of orange pixels
         if contours:
+            # Draws Everything else it's detecting
+            cv2.drawContours(frame, contours, -1, [0, 255, 0], 1)
             # Gets the largest contour and draws it on
             largest_contour = max(contours, key=cv2.contourArea)
-            cv2.drawContours(frame, [largest_contour], 0, [0, 255, 0], 2)
+            cv2.drawContours(frame, [largest_contour], 0, [255, 0, 0], 2)
+
 
         # Display the resulting frame
         cv2.imshow("Frame", frame)

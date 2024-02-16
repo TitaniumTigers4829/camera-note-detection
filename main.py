@@ -11,11 +11,11 @@ cap = cv2.VideoCapture(camera_index)
 
 # TODO We need to tune these values as right now for the specific camera
 # Define lower and upper bounds for orange color in HSV
-lower_orange = np.array([0, 160, 170])
-upper_orange = np.array([15, 255, 255])
+lower_orange = np.array([1, 80, 130])
+upper_orange = np.array([6, 255, 255])
 
 # Define the minimum contour area to detect a note
-minimum_area_pixels = 30
+minimum_area_pixels = 400
 
 # The number of pixels the bounding box should be away from the edge of the frame
 detection_padding = 5
@@ -35,6 +35,7 @@ def find_largest_orange_clump(image):
     if contours:
         largest_contour = max(contours, key=cv2.contourArea)
         if cv2.contourArea(largest_contour) >= minimum_area_pixels:
+            print(cv2.contourArea(largest_contour))
             # Get the bounding box of the largest contour
             x_coord, y_coord, width, height = cv2.boundingRect(largest_contour)
             # Return the position (x, y) and size (w, h) of the largest clump
