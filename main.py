@@ -15,6 +15,11 @@ CONTOUR_DISK_THRESHOLD = 1
 
 
 def find_largest_orange_contour(hsv_image: np.ndarray) -> np.ndarray:
+    """
+    Finds the largest orange contour in an HSV image
+    :param hsv_image: the image to find the contour in
+    :return: the largest orange contour
+    """
     # Threshold the HSV image to get only orange colors
     mask = cv2.inRange(hsv_image, LOWER_ORANGE_HSV, UPPER_ORANGE_HSV)
     # Find contours in the mask
@@ -25,6 +30,11 @@ def find_largest_orange_contour(hsv_image: np.ndarray) -> np.ndarray:
 
 
 def contour_is_note(contour: np.ndarray) -> bool:
+    """
+    Checks if the contour is shaped like a note
+    :param contour: the contour to check
+    :return: True if the contour is shaped like a note
+    """
     # Makes sure the contour isn't some random small spec of noise
     contour_is_big_enough = cv2.contourArea(contour) >= MINIMUM_CONTOUR_AREA
     # Basically checks that the contour has a hole in the middle, and thus also checks that it is mostly on screen
@@ -44,28 +54,23 @@ def main():
     while True:
         # Capture frame-by-frame
         ret, frame = cap.read()
-
-        if ret:
-            # Convert frame from BGR to HSV color space
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-            # Finds the largest orange contour and checks if it looks like a note
-            contour = find_largest_orange_contour(frame)
-            if contour_is_note(contour):
-                x, y, w, h = cv2.boundingRect(contour)
-                # Draw rectangle around the largest clump
-                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-                smart_dashboard.putBoolean("Can See Note", True)
-            else:
-                smart_dashboard.putBoolean("Can See Note", False)
-
-            # Display the resulting frame
-            cv2.imshow("Frame", frame)
-
-            # Closes the program if q is pressed
-            if cv2.waitKey(1) & 0xFF == ord("q"):
-                break
-        else:
+        if not ret:
             print("Error: Unable to capture frame")
+            break
+
+        # Converts from BGR to HSV
+        frame_hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+        contour = find_largest_orange_contour(frame_hsv)
+        if contour is not None and contour_is_note(contour):
+            x, y, w, h = cv2.boundingRect(contour)
+            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+            smart_dashboard.putBoolean("Can See Note", True)
+        else:
+            smart_dashboard.putBoolean("Can See Note", False)
+
+        cv2.imshow("Frame", frame)
+
+        if cv2.waitKey(1) & 0xFF == ord("q"):
             break
 
     # Release the capture
