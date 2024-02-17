@@ -14,7 +14,7 @@ cv2.createTrackbar("Saturation Upper", "Trackbars", 255, 255, lambda x: None)
 cv2.createTrackbar("Value Upper", "Trackbars", 255, 255, lambda x: None)
 
 # Specify the camera index (usually 0 for built-in webcam)
-camera_index = 1
+camera_index = 0
 
 # Open the camera
 cap = cv2.VideoCapture(camera_index)

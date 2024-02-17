@@ -2,16 +2,15 @@ import cv2
 import numpy as np
 from networktables import NetworkTables
 
-
 # Specify the camera index (usually 0 for built-in webcam)
-CAMERA_INDEX = 1
+CAMERA_INDEX = 0
 # Define lower and upper bounds for orange color in HSV
-LOWER_ORANGE_HSV = np.array([4, 180, 80])
+LOWER_ORANGE_HSV = np.array([3, 80, 80])
 UPPER_ORANGE_HSV = np.array([6, 255, 255])
 # The minimum contour area to detect a note
 MINIMUM_CONTOUR_AREA = 400
 # The threshold for a contour to be considered a disk
-CONTOUR_DISK_THRESHOLD = 1
+CONTOUR_DISK_THRESHOLD = 0.9
 
 
 def find_largest_orange_contour(hsv_image: np.ndarray) -> np.ndarray:
@@ -36,11 +35,16 @@ def contour_is_note(contour: np.ndarray) -> bool:
     :return: True if the contour is shaped like a note
     """
     # Makes sure the contour isn't some random small spec of noise
-    contour_is_big_enough = cv2.contourArea(contour) >= MINIMUM_CONTOUR_AREA
-    # Basically checks that the contour has a hole in the middle, and thus also checks that it is mostly on screen
-    contour_is_disk = cv2.contourArea(cv2.convexHull(contour)) / cv2.contourArea(contour) > CONTOUR_DISK_THRESHOLD
+    if cv2.contourArea(contour) < MINIMUM_CONTOUR_AREA:
+        return False
 
-    return contour_is_big_enough and contour_is_disk
+    # Gets the smallest convex polygon that can fit around the contour
+    contour_hull = cv2.convexHull(contour)
+    # Fits an ellipse to the hull, and gets its area
+    ellipse = cv2.fitEllipse(contour_hull)
+    best_fit_ellipse_area = np.pi * (ellipse[1][0] / 2) * (ellipse[1][1] / 2)
+    # Returns True if the hull is almost as big as the ellipse
+    return cv2.contourArea(contour_hull) / best_fit_ellipse_area > CONTOUR_DISK_THRESHOLD
 
 
 def main():
@@ -62,8 +66,7 @@ def main():
         frame_hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         contour = find_largest_orange_contour(frame_hsv)
         if contour is not None and contour_is_note(contour):
-            x, y, w, h = cv2.boundingRect(contour)
-            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+            cv2.ellipse(frame, cv2.fitEllipse(contour), (255, 0, 255), 2)
             smart_dashboard.putBoolean("Can See Note", True)
         else:
             smart_dashboard.putBoolean("Can See Note", False)
