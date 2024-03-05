@@ -68,7 +68,6 @@ def main():
         time, frame = sink.grabFrame(img)
         if time == 0:
             print("Error: Unable to capture frame")
-            break
 
         # Converts from BGR to HSV
         frame_hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
