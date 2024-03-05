@@ -75,21 +75,9 @@ def main():
         contour = find_largest_orange_contour(frame_hsv)
         if contour is not None and contour_is_note(contour):
             cv2.ellipse(frame, cv2.fitEllipse(contour), (255, 0, 255), 2)
-            smart_dashboard.putBoolean("Can See Note", True)
-        else:
-            smart_dashboard.putBoolean("Can See Note", False)
-
-        cv2.imshow("Frame", frame)
-            # Gets the bounding box for the note, and draws it
-            x, y, w, h = cv2.boundingRect(contour)
-            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
         if cv2.waitKey(1) & 0xFF == ord("q"):
             break
-
-    # Release the capture
-    cap.release()
-    cv2.destroyAllWindows()
 
 
 if __name__ == "__main__":
