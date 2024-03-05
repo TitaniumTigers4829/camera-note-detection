@@ -1,6 +1,10 @@
 import cv2
 import numpy as np
 
+# This isn't for the detection, it's just to help you find the lower and upper hsv bounds.
+# Green represents a contour that has been found, blue represents the biggest contour. Try to get it so that they
+# only appear around notes.
+
 # Create a window to adjust the lower and upper bounds
 cv2.namedWindow("Trackbars", cv2.WINDOW_NORMAL)  # Use WINDOW_NORMAL to allow resizing
 cv2.resizeWindow("Trackbars", 600, 300)  # Set the size of the window (width, height)
@@ -14,7 +18,7 @@ cv2.createTrackbar("Saturation Upper", "Trackbars", 255, 255, lambda x: None)
 cv2.createTrackbar("Value Upper", "Trackbars", 255, 255, lambda x: None)
 
 # Specify the camera index (usually 0 for built-in webcam)
-camera_index = 1
+camera_index = 0
 
 # Open the camera
 cap = cv2.VideoCapture(camera_index)
