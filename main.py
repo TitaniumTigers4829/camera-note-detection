@@ -1,8 +1,11 @@
 import cv2
 import numpy as np
-from networktables import NetworkTables
+from networktables import NetworkTablesInstance
+from cscore import CameraServer
 
 
+# Set your team number
+TEAM_NUMBER = 4829
 # Specify the camera index (usually 0 for built-in webcam)
 CAMERA_INDEX = 1
 # Define lower and upper bounds for orange color in HSV
@@ -44,38 +47,33 @@ def contour_is_note(contour: np.ndarray) -> bool:
 
 
 def main():
-    # Open the camera
-    cap = cv2.VideoCapture(CAMERA_INDEX)
     # Connects to the robot
-    # TODO: Figure out what this address should be, I think it's this or maybe roborio-4829-frc.local
-    NetworkTables.initialize(server="127.0.0.1")
-    smart_dashboard = NetworkTables.getTable("SmartDashboard")
+    network_table_instance = NetworkTablesInstance.getDefault()
+    network_table_instance.startClientTeam(TEAM_NUMBER)
+    network_table_instance.startDSClient()
+    # Gets the camera
+    camera_instance = CameraServer.getInstance()
+    camera = camera_instance.startAutomaticCapture()
+    camera.setResolution(1920, 1080)
+    sink = camera_instance.getVideo()
+    img = np.zeros(shape=(1920, 1080, 3), dtype=np.uint8)
 
     while True:
         # Capture frame-by-frame
-        ret, frame = cap.read()
-        if not ret:
+        time, frame = sink.grabFrame(img)
+        if time == 0:
             print("Error: Unable to capture frame")
-            break
 
         # Converts from BGR to HSV
         frame_hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         contour = find_largest_orange_contour(frame_hsv)
         if contour is not None and contour_is_note(contour):
+            # Gets the bounding box for the note, and draws it
             x, y, w, h = cv2.boundingRect(contour)
             cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-            smart_dashboard.putBoolean("Can See Note", True)
-        else:
-            smart_dashboard.putBoolean("Can See Note", False)
-
-        cv2.imshow("Frame", frame)
 
         if cv2.waitKey(1) & 0xFF == ord("q"):
             break
-
-    # Release the capture
-    cap.release()
-    cv2.destroyAllWindows()
 
 
 if __name__ == "__main__":
