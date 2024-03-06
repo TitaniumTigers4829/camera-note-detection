@@ -1,4 +1,2 @@
 numpy
 opencv-python
-pynetworktables
-robotpy-cscore

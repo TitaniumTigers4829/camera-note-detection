@@ -1,11 +1,6 @@
 import cv2
 import numpy as np
-from networktables import NetworkTablesInstance
-from cscore import CameraServer
 
-
-# Set your team number
-TEAM_NUMBER = 4829
 # Specify the camera index (usually 0 for built-in webcam)
 CAMERA_INDEX = 0
 # Define lower and upper bounds for orange color in HSV
@@ -52,22 +47,15 @@ def contour_is_note(contour: np.ndarray) -> bool:
 
 
 def main():
-    # Connects to the robot
-    network_table_instance = NetworkTablesInstance.getDefault()
-    network_table_instance.startClientTeam(TEAM_NUMBER)
-    network_table_instance.startDSClient()
-    # Gets the camera
-    camera_instance = CameraServer.getInstance()
-    camera = camera_instance.startAutomaticCapture()
-    camera.setResolution(1920, 1080)
-    sink = camera_instance.getVideo()
-    img = np.zeros(shape=(1920, 1080, 3), dtype=np.uint8)
+    # Open the camera
+    cap = cv2.VideoCapture(CAMERA_INDEX)
 
     while True:
         # Capture frame-by-frame
-        time, frame = sink.grabFrame(img)
-        if time == 0:
+        ret, frame = cap.read()
+        if not ret:
             print("Error: Unable to capture frame")
+            break
 
         # Converts from BGR to HSV
         frame_hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
@@ -75,8 +63,14 @@ def main():
         if contour is not None and contour_is_note(contour):
             cv2.ellipse(frame, cv2.fitEllipse(contour), (255, 0, 255), 2)
 
+        cv2.imshow("Frame", frame)
+
         if cv2.waitKey(1) & 0xFF == ord("q"):
             break
+
+    # Release the capture
+    cap.release()
+    cv2.destroyAllWindows()
 
 
 if __name__ == "__main__":
